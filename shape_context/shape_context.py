@@ -28,8 +28,28 @@ class ShapeContext(object):
         total = cost_matrix[row_ind, col_ind].sum()
         indexes = zip(row_ind.tolist(), col_ind.tolist())
         return total, indexes
+    
+    def get_points_from_img(self, image, simpleto=100):
+        """
+            This is much faster version of getting shape points algo.
+            It's based on cv2.findContours algorithm, which is basically return shape points
+            ordered by curve direction. So it's gives better and faster result
+        """
+        if len(image.shape) > 2:
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    def get_points_from_img(self, image, threshold=50, simpleto=100, radius=2):
+        cnts = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+        points = np.array(cnts[1][0]).reshape((-1, 2))
+        if len(cnts[1]) > 1:
+            points = np.concatenate([points, np.array(cnts[1][1]).reshape((-1, 2))], axis=0)
+        points = points.tolist()
+        step = len(points) / simpleto
+        points = [points[i] for i in xrange(0, len(points), step)][:simpleto]
+        if len(points) < simpleto:
+            points = points + [[0, 0]] * (simpleto - len(points))
+        return points
+
+    '''def get_points_from_img(self, image, threshold=50, simpleto=100, radius=2):
         """
             That is not very good algorithm of choosing path points, but it will work for our case.
 
@@ -67,7 +87,7 @@ class ShapeContext(object):
             radians = math.atan2(py[y, x], px[y, x])
             T[i] = radians + 2 * math.pi * (radians < 0)
 
-        return points, np.asmatrix(T)
+        return points, np.asmatrix(T)'''
 
     def _cost(self, hi, hj):
         cost = 0
