@@ -16,5 +16,9 @@ Link to the article: https://medium.com/machine-learning-world/shape-context-des
 
 Link to Google Colab code runner to see this code in work: https://drive.google.com/file/d/16OtL71G0CNk0dSIJU2R4HrLnmj53Xfyi/view?usp=sharing
 
-### Support
+## Subscribe to our Machine Learning blog
+- [Blog](https://medium.com/machine-learning-world)
+- [Telegram channel](https://t.me/ml_world)
+
+## Support
 If you like my articles, you can always support me with some beer-money https://paypal.me/creotiv
