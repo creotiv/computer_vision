@@ -21,4 +21,5 @@ Link to Google Colab code runner to see this code in work: https://drive.google.
 - [Telegram channel](https://t.me/ml_world)
 
 ## Support
-If you like my articles, you can always support me with some beer-money https://paypal.me/creotiv
+Beside work im trying to help homeless animals, so if you like my work, you can support me
+https://www.patreon.com/uah
