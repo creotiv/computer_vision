@@ -28,28 +28,8 @@ class ShapeContext(object):
         total = cost_matrix[row_ind, col_ind].sum()
         indexes = zip(row_ind.tolist(), col_ind.tolist())
         return total, indexes
-    
-    def get_points_from_img(self, image, simpleto=100):
-        """
-            This is much faster version of getting shape points algo.
-            It's based on cv2.findContours algorithm, which is basically return shape points
-            ordered by curve direction. So it's gives better and faster result
-        """
-        if len(image.shape) > 2:
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        cnts = cv2.findContours(image, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-        points = np.array(cnts[1][0]).reshape((-1, 2))
-        if len(cnts[1]) > 1:
-            points = np.concatenate([points, np.array(cnts[1][1]).reshape((-1, 2))], axis=0)
-        points = points.tolist()
-        step = len(points) / simpleto
-        points = [points[i] for i in xrange(0, len(points), step)][:simpleto]
-        if len(points) < simpleto:
-            points = points + [[0, 0]] * (simpleto - len(points))
-        return points
-
-    '''def get_points_from_img(self, image, threshold=50, simpleto=100, radius=2):
+    def get_points_from_img(self, image, threshold=50, simpleto=100, radius=2):
         """
             That is not very good algorithm of choosing path points, but it will work for our case.
 
@@ -87,11 +67,11 @@ class ShapeContext(object):
             radians = math.atan2(py[y, x], px[y, x])
             T[i] = radians + 2 * math.pi * (radians < 0)
 
-        return points, np.asmatrix(T)'''
+        return points, np.asmatrix(T)
 
     def _cost(self, hi, hj):
         cost = 0
-        for k in xrange(self.nbins_theta * self.nbins_r):
+        for k in range(self.nbins_theta * self.nbins_r):
             if (hi[k] + hj[k]):
                 cost += ((hi[k] - hj[k])**2) / (hi[k] + hj[k])
 
@@ -104,8 +84,8 @@ class ShapeContext(object):
         if qlength:
             d = qlength
         C = np.zeros((p, p2))
-        for i in xrange(p):
-            for j in xrange(p2):
+        for i in range(p):
+            for j in range(p2):
                 C[i, j] = self._cost(Q[j] / d, P[i] / p)
 
         return C
@@ -120,7 +100,7 @@ class ShapeContext(object):
         # getting two points with maximum distance to norm angle by them
         # this is needed for rotation invariant feature
         am = r_array.argmax()
-        max_points = [am / t_points, am % t_points]
+        max_points = [int(am / t_points), am % t_points]
         # normalizing
         r_array_n = r_array / r_array.mean()
         # create log space
@@ -130,13 +110,14 @@ class ShapeContext(object):
         # logspace = [0.1250, 0.2500, 0.5000, 1.0000, 2.0000]
         # 0    1.3 -> 1 0 -> 2 0 -> 3 0 -> 4 0 -> 5 1
         # 0.43  0     0 1    0 2    1 3    2 4    3 5
-        for m in xrange(self.nbins_r):
+        for m in range(self.nbins_r):
             r_array_q += (r_array_n < r_bin_edges[m])
 
         fz = r_array_q > 0
 
         # getting angles in radians
         theta_array = cdist(points, points, lambda u, v: math.atan2((v[1] - u[1]), (v[0] - u[0])))
+        print(max_points)
         norm_angle = theta_array[max_points[0], max_points[1]]
         # making angles matrix rotation invariant
         theta_array = (theta_array - norm_angle * (np.ones((t_points, t_points)) - np.identity(t_points)))
@@ -151,9 +132,9 @@ class ShapeContext(object):
         # building point descriptor based on angle and distance
         nbins = self.nbins_theta * self.nbins_r
         descriptor = np.zeros((t_points, nbins))
-        for i in xrange(t_points):
+        for i in range(t_points):
             sn = np.zeros((self.nbins_r, self.nbins_theta))
-            for j in xrange(t_points):
+            for j in range(t_points):
                 if (fz[i, j]):
                     sn[r_array_q[i, j] - 1, theta_array_q[i, j] - 1] += 1
             descriptor[i] = sn.reshape(nbins)
@@ -251,8 +232,7 @@ class ShapeContext(object):
         test_move()
         test_scale()
         test_rotation()
-        print 'Tests PASSED'
+        print ('Tests PASSED')
 
-if __name__ == "__main__":
-    ShapeContext.tests()
 
+ShapeContext.tests()
